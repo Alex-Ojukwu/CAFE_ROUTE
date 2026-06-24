@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { RiderTopbar } from "@/components/rider/rider-topbar";
+import { OrderNotifier } from "@/components/order-notifier";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,7 @@ export default async function RiderLayout({
   return (
     <>
       <RiderTopbar userId={user!.id} initialActive={profile?.is_active ?? true} />
+      <OrderNotifier role="rider" userId={user!.id} />
       {children}
     </>
   );
