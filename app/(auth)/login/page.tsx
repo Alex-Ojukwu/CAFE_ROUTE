@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Compass } from "lucide-react";
+import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
 const schema = z.object({
@@ -16,7 +16,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 const inputClass =
-  "mt-1 w-full rounded-lg border border-surface-border bg-background px-3 py-2.5 text-sm text-ink placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40";
+  "h-12 w-full rounded-xl border border-primary/60 bg-[#0E0B08] px-4 text-sm text-ink shadow-[0_0_14px_-3px_rgba(234,106,31,0.55)] transition placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,6 +26,7 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
@@ -40,93 +41,130 @@ export default function LoginPage() {
     router.refresh();
   }
 
+  async function onForgotPassword() {
+    const email = watch("email");
+    if (!email || !z.string().email().safeParse(email).success) {
+      toast.error("Enter your email above first.");
+      return;
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/login`,
+    });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Password reset link sent — check your email.");
+  }
+
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="w-full max-w-sm rounded-2xl border border-primary/30 bg-surface p-7 shadow-glow">
-        <div className="flex flex-col items-center text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 ring-1 ring-primary/40">
-            <Compass className="h-6 w-6 text-primary" aria-hidden="true" />
-          </span>
-          <h1 className="mt-3 font-serif text-3xl font-bold text-ink">
-            CafeRoute
-          </h1>
-          <p className="mt-1 text-sm text-ink-muted">Sign in to your account.</p>
+    <main className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="grid w-full max-w-4xl overflow-hidden rounded-3xl shadow-glow ring-1 ring-primary/40 md:grid-cols-2">
+        {/* Left — cream welcome panel (cropped from the design, hidden on mobile) */}
+        <div className="relative hidden bg-ink md:block">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/login-left.png"
+            alt="Welcome back to CafeRoute — sign in to access your curated meals, track live orders, and manage your account."
+            className="h-full w-full object-cover"
+          />
         </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="mt-7 space-y-4"
-          noValidate
-        >
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-ink"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              {...register("email")}
-              aria-invalid={!!errors.email}
-              className={inputClass}
-            />
-            {errors.email && (
-              <p className="mt-1 text-xs text-red-400">{errors.email.message}</p>
-            )}
-          </div>
+        {/* Right — dark form panel */}
+        <div className="bg-background px-7 py-9 sm:px-10">
+          <h1 className="text-center font-serif text-2xl font-bold text-ink md:text-left">
+            CafeRoute
+          </h1>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-ink"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              {...register("password")}
-              aria-invalid={!!errors.password}
-              className={inputClass}
-            />
-            {errors.password && (
-              <p className="mt-1 text-xs text-red-400">
-                {errors.password.message}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="mt-7 space-y-5"
+            noValidate
+          >
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-xs font-semibold uppercase tracking-wider text-ink-muted"
+              >
+                Email address
+              </label>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                {...register("email")}
+                aria-invalid={!!errors.email}
+                className={`mt-2 ${inputClass}`}
+              />
+              {errors.email && (
+                <p className="mt-1 text-xs text-red-400">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-xs font-semibold uppercase tracking-wider text-ink-muted"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                {...register("password")}
+                aria-invalid={!!errors.password}
+                className={`mt-2 ${inputClass}`}
+              />
+              {errors.password && (
+                <p className="mt-1 text-xs text-red-400">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            <p className="text-sm text-ink-muted">
+              Login with your account to continue.
+            </p>
+
+            {serverError && (
+              <p
+                role="alert"
+                className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300"
+              >
+                {serverError}
               </p>
             )}
-          </div>
 
-          {serverError && (
-            <p
-              role="alert"
-              className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300"
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="h-12 w-full rounded-xl bg-primary text-sm font-semibold uppercase tracking-wide text-background transition hover:bg-primary-400 focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60"
             >
-              {serverError}
-            </p>
-          )}
+              {isSubmitting ? "Signing in…" : "Sign in"}
+            </button>
+          </form>
 
           <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-background transition hover:bg-primary-400 focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60"
+            type="button"
+            onClick={onForgotPassword}
+            className="mx-auto mt-4 block text-sm font-medium text-primary-300 hover:text-primary"
           >
-            {isSubmitting ? "Signing in…" : "Sign in"}
+            Forgot Password?
           </button>
-        </form>
 
-        <p className="mt-5 text-center text-sm text-ink-muted">
-          No account?{" "}
-          <Link
-            href="/signup"
-            className="font-medium text-primary-300 hover:text-primary"
-          >
-            Create one
-          </Link>
-        </p>
+          <p className="mt-2 text-center text-sm text-ink-muted">
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/signup"
+              className="font-medium text-primary-300 hover:text-primary"
+            >
+              Sign Up
+            </Link>
+          </p>
+        </div>
       </div>
     </main>
   );
