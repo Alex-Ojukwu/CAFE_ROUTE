@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background font-sans text-ink antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  .font-display {
+    @apply font-serif;
+  }
+}
+
+@layer utilities {
+  /* Dark shimmer for loading skeletons. */
+  .skeleton {
+    @apply animate-pulse rounded-lg bg-surface-border/40;
+  }
+}
