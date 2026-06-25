@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,7 +13,7 @@ import { formatNaira } from "@/lib/format";
 
 const schema = z.object({
   address: z.string().min(5, "Enter your delivery address"),
-  phone: z.string().optional(),
+  phone: z.string().min(7, "Enter a phone number so your rider can reach you"),
   notes: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
@@ -30,8 +30,33 @@ export default function CheckoutPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
+
+  // Prefill the phone from the customer's signup profile so they don't retype
+  // it. Still editable in case they want a different number for this delivery.
+  useEffect(() => {
+    let active = true;
+    const sb = createClient();
+    (async () => {
+      const {
+        data: { user },
+      } = await sb.auth.getUser();
+      if (!active || !user) return;
+      const { data: profile } = await sb
+        .from("profiles")
+        .select("phone")
+        .eq("id", user.id)
+        .single();
+      if (active && profile?.phone) {
+        setValue("phone", profile.phone);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [setValue]);
 
   async function onSubmit(values: FormValues) {
     setServerError(null);
@@ -133,14 +158,18 @@ export default function CheckoutPage() {
               htmlFor="phone"
               className="block text-sm font-medium text-ink"
             >
-              Phone <span className="text-ink-muted">(optional)</span>
+              Phone
             </label>
             <input
               id="phone"
               type="tel"
               {...register("phone")}
+              aria-invalid={!!errors.phone}
               className={inputClass}
             />
+            {errors.phone && (
+              <p className="mt-1 text-xs text-red-400">{errors.phone.message}</p>
+            )}
           </div>
 
           <div>
