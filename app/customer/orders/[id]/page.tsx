@@ -56,7 +56,11 @@ export default async function OrderDetailPage({
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
-      <RealtimeRefresher table="orders" filter={`id=eq.${order.id}`} />
+      <RealtimeRefresher
+        table="orders"
+        filter={`id=eq.${order.id}`}
+        intervalMs={5000}
+      />
 
       <div className="flex items-center justify-between">
         <div>

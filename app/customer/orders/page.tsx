@@ -23,7 +23,11 @@ export default async function MyOrdersPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8">
-      <RealtimeRefresher table="orders" filter={`customer_id=eq.${user!.id}`} />
+      <RealtimeRefresher
+        table="orders"
+        filter={`customer_id=eq.${user!.id}`}
+        intervalMs={8000}
+      />
       <h1 className="font-serif text-2xl font-bold text-ink">My orders</h1>
 
       {orders.length === 0 ? (

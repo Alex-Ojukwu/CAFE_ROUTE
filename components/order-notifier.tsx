@@ -34,6 +34,11 @@ const CUSTOMER_MESSAGES: Partial<
 
 // role="customer": alerts on this customer's order status changes.
 // role="rider": alerts when a new order lands in the pool.
+//
+// Alerts arrive two ways so they're reliable even if Supabase Realtime isn't
+// delivering: an instant Realtime subscription AND a polling fallback. A shared
+// `seen` map de-dupes the two, and the first poll only records a baseline (no
+// alert) so existing orders don't all fire at once on load.
 export function OrderNotifier({
   role,
   userId,
@@ -67,6 +72,13 @@ export function OrderNotifier({
     window.addEventListener("pointerdown", unlock);
     window.addEventListener("keydown", unlock);
 
+    const playSound = () => {
+      const a = audioRef.current;
+      if (!a) return;
+      a.currentTime = 0;
+      a.play().catch(() => {});
+    };
+
     // One-time prompt to enable browser notifications.
     if (
       "Notification" in window &&
@@ -87,17 +99,48 @@ export function OrderNotifier({
       });
     }
 
-    // Plays the chime on every alert, whether the tab is focused or not.
-    const playSound = () => {
-      const a = audioRef.current;
-      if (!a) return;
-      a.currentTime = 0;
-      a.play().catch(() => {});
+    // Record an order's status and alert if it's a new/changed status we care
+    // about. `notify=false` just sets the baseline (used by the first poll).
+    const handle = (
+      o: Pick<Order, "id" | "status">,
+      notify: boolean
+    ) => {
+      if (seen.current.get(o.id) === o.status) return;
+      seen.current.set(o.id, o.status);
+      if (!notify) return;
+
+      if (role === "customer") {
+        const msg = CUSTOMER_MESSAGES[o.status];
+        if (msg) {
+          playSound();
+          toast.success(`${msg.title} — ${msg.body}`);
+          osNotify(msg.title, msg.body);
+        }
+      } else if (o.status === "pending") {
+        playSound();
+        toast.success("New order 🛵 — a delivery is available in the pool.");
+        osNotify("New order 🛵", "A delivery is available in the pool.");
+      }
     };
 
     const supabase = createClient();
-    const channel = supabase.channel(`notify-${role}-${userId}`);
 
+    // --- Polling fallback (works even when Realtime is off) ---
+    async function poll(notify: boolean) {
+      const query = supabase.from("orders").select("id, status");
+      const { data } =
+        role === "customer"
+          ? await query.eq("customer_id", userId)
+          : await query.eq("status", "pending");
+      (data as Pick<Order, "id" | "status">[] | null)?.forEach((o) =>
+        handle(o, notify)
+      );
+    }
+    poll(false); // prime the baseline silently
+    const pollTimer = setInterval(() => poll(true), 5000);
+
+    // --- Instant Realtime subscription ---
+    const channel = supabase.channel(`notify-${role}-${userId}`);
     if (role === "customer") {
       channel.on(
         "postgres_changes",
@@ -107,17 +150,7 @@ export function OrderNotifier({
           table: "orders",
           filter: `customer_id=eq.${userId}`,
         },
-        (payload) => {
-          const o = payload.new as Order;
-          if (seen.current.get(o.id) === o.status) return;
-          seen.current.set(o.id, o.status);
-          const msg = CUSTOMER_MESSAGES[o.status];
-          if (msg) {
-            playSound();
-            toast.success(`${msg.title} — ${msg.body}`);
-            osNotify(msg.title, msg.body);
-          }
-        }
+        (payload) => handle(payload.new as Order, true)
       );
     } else {
       channel.on(
@@ -128,21 +161,15 @@ export function OrderNotifier({
           table: "orders",
           filter: `status=eq.pending`,
         },
-        (payload) => {
-          const o = payload.new as Order;
-          if (seen.current.has(o.id)) return;
-          seen.current.set(o.id, o.status);
-          playSound();
-          toast.success("New order 🛵 — a delivery is available in the pool.");
-          osNotify("New order 🛵", "A delivery is available in the pool.");
-        }
+        (payload) => handle(payload.new as Order, true)
       );
     }
-
     channel.subscribe();
+
     return () => {
       window.removeEventListener("pointerdown", unlock);
       window.removeEventListener("keydown", unlock);
+      clearInterval(pollTimer);
       supabase.removeChannel(channel);
     };
   }, [role, userId]);
