@@ -10,7 +10,7 @@ export default async function CustomerMenuPage() {
     .from("menu_items")
     .select("*")
     .eq("is_available", true)
-    .order("category", { ascending: true })
+    .order("is_staple", { ascending: false })
     .order("name", { ascending: true });
 
   return <MenuBrowser items={(items as MenuItem[]) ?? []} />;

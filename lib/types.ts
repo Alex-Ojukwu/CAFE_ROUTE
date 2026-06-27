@@ -13,6 +13,7 @@ export type MenuItem = {
   category: string;
   image_url: string | null;
   is_available: boolean;
+  is_staple: boolean; // served every day → big pop-out "specials" tier
   created_at: string;
 };
 
