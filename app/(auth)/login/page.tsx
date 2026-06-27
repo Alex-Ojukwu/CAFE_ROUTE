@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Compass, Loader2 } from "lucide-react";
+import { Compass, Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
@@ -26,6 +26,7 @@ export default function LoginPage() {
   // Stays true through the redirect so the overlay doesn't flicker off before
   // the destination portal renders. Only reset on error.
   const [signingIn, setSigningIn] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -145,14 +146,29 @@ export default function LoginPage() {
                 >
                   Password
                 </label>
-                <input
-                  id="password"
-                  type="password"
-                  autoComplete="current-password"
-                  {...register("password")}
-                  aria-invalid={!!errors.password}
-                  className={`mt-2 ${inputClass}`}
-                />
+                <div className="relative mt-2">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    {...register("password")}
+                    aria-invalid={!!errors.password}
+                    className={`${inputClass} pr-12`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-pressed={showPassword}
+                    className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-ink-muted transition hover:text-primary focus:outline-none focus-visible:text-primary"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" aria-hidden="true" />
+                    ) : (
+                      <Eye className="h-5 w-5" aria-hidden="true" />
+                    )}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="mt-1 text-xs text-red-400">
                     {errors.password.message}

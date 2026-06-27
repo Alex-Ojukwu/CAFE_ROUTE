@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useCart } from "@/components/cart/cart-context";
 import { createClient } from "@/lib/supabase/client";
 import { formatNaira } from "@/lib/format";
+import { PACK_FEE, DELIVERY_FEE } from "@/lib/fees";
 
 const schema = z.object({
   address: z.string().min(5, "Enter your delivery address"),
@@ -23,6 +24,9 @@ const inputClass =
 
 export default function CheckoutPage() {
   const { items, total, clear } = useCart();
+  // total from the cart is the items subtotal; fees are added on top and the
+  // server (place_order) recomputes the same grand total it actually charges.
+  const grandTotal = total + PACK_FEE + DELIVERY_FEE;
   const router = useRouter();
   const supabase = createClient();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -121,10 +125,28 @@ export default function CheckoutPage() {
               </li>
             ))}
           </ul>
-          <div className="mt-3 flex justify-between border-t border-surface-border pt-3 text-sm font-semibold text-ink">
-            <span>Total</span>
-            <span>{formatNaira(total)}</span>
+          <div className="mt-3 space-y-2 border-t border-surface-border pt-3 text-sm">
+            <div className="flex justify-between text-ink-muted">
+              <span>Items subtotal</span>
+              <span>{formatNaira(total)}</span>
+            </div>
+            <div className="flex justify-between text-ink-muted">
+              <span>Packaging fee</span>
+              <span>{formatNaira(PACK_FEE)}</span>
+            </div>
+            <div className="flex justify-between text-ink-muted">
+              <span>Delivery fee</span>
+              <span>{formatNaira(DELIVERY_FEE)}</span>
+            </div>
+            <div className="flex justify-between border-t border-surface-border pt-2 text-base font-semibold text-ink">
+              <span>Total to pay</span>
+              <span>{formatNaira(grandTotal)}</span>
+            </div>
           </div>
+          <p className="mt-3 rounded-lg bg-background-raised px-3 py-2 text-xs text-ink-muted">
+            Your total includes a {formatNaira(PACK_FEE)} packaging fee and a{" "}
+            {formatNaira(DELIVERY_FEE)} delivery fee.
+          </p>
         </section>
 
         <form
@@ -203,7 +225,7 @@ export default function CheckoutPage() {
           >
             {isSubmitting
               ? "Placing order…"
-              : `Place order · ${formatNaira(total)}`}
+              : `Place order · ${formatNaira(grandTotal)}`}
           </button>
         </form>
       </div>

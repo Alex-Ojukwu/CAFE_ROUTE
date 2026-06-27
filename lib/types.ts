@@ -23,6 +23,8 @@ export type Order = {
   rider_id: string | null;
   status: OrderStatus;
   total: number;
+  pack_fee: number;
+  delivery_fee: number;
   delivery_address: string;
   delivery_notes: string | null;
   customer_phone: string | null;
