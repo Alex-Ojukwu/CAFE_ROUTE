@@ -42,8 +42,31 @@ export function OrderNotifier({
   userId: string;
 }) {
   const seen = useRef<Map<string, OrderStatus>>(new Map());
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
+    // Notification chime. Browsers block audio until the user has interacted
+    // with the page once (autoplay policy) — that's not a permission prompt, so
+    // we silently "unlock" it on the first gesture. After that it plays on
+    // every alert without ever asking the user.
+    const audio = new Audio("/mixkit-confirmation-tone-2867.wav");
+    audio.preload = "auto";
+    audioRef.current = audio;
+
+    const unlock = () => {
+      audio
+        .play()
+        .then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+        })
+        .catch(() => {});
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+    window.addEventListener("pointerdown", unlock);
+    window.addEventListener("keydown", unlock);
+
     // One-time prompt to enable browser notifications.
     if (
       "Notification" in window &&
@@ -64,6 +87,14 @@ export function OrderNotifier({
       });
     }
 
+    // Plays the chime on every alert, whether the tab is focused or not.
+    const playSound = () => {
+      const a = audioRef.current;
+      if (!a) return;
+      a.currentTime = 0;
+      a.play().catch(() => {});
+    };
+
     const supabase = createClient();
     const channel = supabase.channel(`notify-${role}-${userId}`);
 
@@ -82,6 +113,7 @@ export function OrderNotifier({
           seen.current.set(o.id, o.status);
           const msg = CUSTOMER_MESSAGES[o.status];
           if (msg) {
+            playSound();
             toast.success(`${msg.title} — ${msg.body}`);
             osNotify(msg.title, msg.body);
           }
@@ -100,6 +132,7 @@ export function OrderNotifier({
           const o = payload.new as Order;
           if (seen.current.has(o.id)) return;
           seen.current.set(o.id, o.status);
+          playSound();
           toast.success("New order 🛵 — a delivery is available in the pool.");
           osNotify("New order 🛵", "A delivery is available in the pool.");
         }
@@ -108,6 +141,8 @@ export function OrderNotifier({
 
     channel.subscribe();
     return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
       supabase.removeChannel(channel);
     };
   }, [role, userId]);
