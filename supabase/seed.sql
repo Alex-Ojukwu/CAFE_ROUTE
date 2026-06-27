@@ -10,8 +10,8 @@ insert into menu_items (name, description, price, category, image_url, is_availa
   ('White Rice & Stew','Fluffy white rice with a rich tomato pepper stew',            600, 'Rice',  '/foods/white_rice-removebg-preview.png', true, true),
   ('Plantain (Dodo)',  'Sweet fried ripe plantain with pepper sauce',                200, 'Sides', '/foods/plantain-removebg-preview.png',   true, true),
   ('Beans (Ewa)',      'Slow-cooked beans porridge, soft and savoury',               600, 'Sides', '/foods/beans-removebg-preview.png',      true, true),
+  ('Grilled Chicken',  'Herb-roasted peppered chicken, two pieces',                 1500, 'Grill', '/foods/chicken-removebg-preview.png',    true, true),
   -- Also on the menu (quieter tier)
-  ('Grilled Chicken',  'Herb-roasted peppered chicken, two pieces',                 1500, 'Grill', '/foods/chicken-removebg-preview.png',    true, false),
   ('Shawarma',         'Beef shawarma wrap loaded with fresh veggies',              2500, 'Wraps', '/foods/sharwama-removebg-preview.png',   true, false),
   ('Pizza',            'Wood-fired pepperoni pizza',                                5000, 'Extras','/foods/pizza-removebg-preview.png',      true, false);
 
