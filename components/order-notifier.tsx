@@ -137,7 +137,9 @@ export function OrderNotifier({
       );
     }
     poll(false); // prime the baseline silently
-    const pollTimer = setInterval(() => poll(true), 5000);
+    // Realtime delivers alerts instantly; this poll is just a slow safety net
+    // (kept long so 2,000 customers don't hammer the DB).
+    const pollTimer = setInterval(() => poll(true), 30000);
 
     // --- Instant Realtime subscription ---
     const channel = supabase.channel(`notify-${role}-${userId}`);

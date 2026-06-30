@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Playfair_Display, Inter, Instrument_Serif } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -12,6 +12,15 @@ const playfair = Playfair_Display({
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+// Cinematic editorial italic — used for big display headlines (e.g. login).
+const instrument = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-instrument",
   display: "swap",
 });
 
@@ -33,7 +42,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
+    <html
+      lang="en"
+      className={`${playfair.variable} ${inter.variable} ${instrument.variable}`}
+    >
       <body className="min-h-screen bg-background text-ink">
         {children}
         <Toaster

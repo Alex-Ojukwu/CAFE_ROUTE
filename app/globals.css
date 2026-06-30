@@ -14,9 +14,85 @@
   }
 }
 
+@layer components {
+  /* Liquid glassmorphism — frosted panel with a thin highlight border that
+     fades out toward the middle of each edge (mask-composite trick). Reads as
+     light catching the rim of glass; used for the login card + glass buttons. */
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.04);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: none;
+    box-shadow:
+      0 24px 60px -24px rgba(0, 0, 0, 0.7),
+      inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .liquid-glass-strong {
+    background: rgba(255, 255, 255, 0.02);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(50px);
+    border: none;
+    box-shadow:
+      0 30px 80px -30px rgba(0, 0, 0, 0.8),
+      inset 0 1px 1px rgba(255, 255, 255, 0.18);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .liquid-glass::before,
+  .liquid-glass-strong::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.2) 20%,
+      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0) 60%,
+      rgba(255, 255, 255, 0.2) 80%,
+      rgba(255, 255, 255, 0.5) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
 @layer utilities {
   /* Dark shimmer for loading skeletons. */
   .skeleton {
     @apply animate-pulse rounded-lg bg-surface-border/40;
+  }
+
+  /* Slow cinematic drift for the login food backdrop (Ken Burns). */
+  .animate-ken-burns {
+    animation: ken-burns 26s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes ken-burns {
+  from {
+    transform: scale(1.06) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.16) translate3d(-1.5%, -1.5%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ken-burns {
+    animation: none;
+    transform: scale(1.06);
   }
 }

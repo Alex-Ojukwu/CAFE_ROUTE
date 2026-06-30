@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { revalidateMenu } from "@/app/owner/menu/actions";
 import { formatNaira } from "@/lib/format";
 import type { MenuItem } from "@/lib/types";
 
@@ -111,6 +112,7 @@ export function MenuManager({ initialItems }: { initialItems: MenuItem[] }) {
 
       toast.success(editing ? "Item updated" : "Item added");
       setOpen(false);
+      await revalidateMenu();
       router.refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not save item");
@@ -128,6 +130,7 @@ export function MenuManager({ initialItems }: { initialItems: MenuItem[] }) {
       toast.error(error.message);
       return;
     }
+    await revalidateMenu();
     router.refresh();
   }
 
@@ -144,6 +147,7 @@ export function MenuManager({ initialItems }: { initialItems: MenuItem[] }) {
       return;
     }
     toast.success("Item deleted");
+    await revalidateMenu();
     router.refresh();
   }
 

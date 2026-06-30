@@ -59,7 +59,7 @@ export default async function OrderDetailPage({
       <RealtimeRefresher
         table="orders"
         filter={`id=eq.${order.id}`}
-        intervalMs={5000}
+        intervalMs={30000}
       />
 
       <div className="flex items-center justify-between">

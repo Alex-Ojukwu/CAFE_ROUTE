@@ -24,26 +24,32 @@ export function MenuBrowser({ items }: { items: MenuItem[] }) {
   const others = items.filter((i) => !i.is_staple);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">
+    <div className="relative mx-auto max-w-6xl px-4 py-8">
+      {/* Warm cinematic glow behind the header for depth. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-10 left-1/2 z-0 h-72 w-[42rem] max-w-full -translate-x-1/2 rounded-full bg-primary/15 blur-3xl"
+      />
+
+      <header className="relative z-10 mb-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-300">
           Discover
         </p>
-        <h1 className="mt-1 font-serif text-3xl font-bold uppercase tracking-tight text-ink sm:text-4xl">
-          <span className="text-primary">CafeRoute</span> Specials
+        <h1 className="mt-2 font-display text-5xl italic leading-[0.95] tracking-tight text-ink drop-shadow sm:text-6xl">
+          <span className="text-primary">CafeRoute</span> specials
         </h1>
-        <p className="mt-2 max-w-md text-sm text-ink-muted">
+        <p className="mt-4 max-w-md text-sm leading-relaxed text-ink-muted">
           Freshly made, delivered hot. Tap add, then check out when you&apos;re
           ready.
         </p>
       </header>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+      <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_320px]">
         {/* Everyday staples — the big cream pop-out heroes. */}
         {staples.length > 0 && (
           <section className="min-w-0">
-            <h2 className="mb-5 font-serif text-xl font-semibold text-ink">
-              Everyday Specials
+            <h2 className="mb-5 font-display text-2xl italic text-ink">
+              Everyday specials
             </h2>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-8">
               {staples.map((item) => (
@@ -60,7 +66,7 @@ export function MenuBrowser({ items }: { items: MenuItem[] }) {
         {/* Everything else — quieter rail to the right (stacks below on mobile). */}
         {others.length > 0 && (
           <aside className="lg:sticky lg:top-24 lg:self-start">
-            <h2 className="mb-4 font-serif text-xl font-semibold text-ink">
+            <h2 className="mb-4 font-display text-2xl italic text-ink">
               Also on the menu
             </h2>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">

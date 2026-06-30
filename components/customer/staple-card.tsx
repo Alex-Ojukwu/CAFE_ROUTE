@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Star } from "lucide-react";
 import { formatNaira } from "@/lib/format";
 import { AddToCartButton } from "./add-to-cart-button";
@@ -25,11 +26,12 @@ export function StapleCard({
         {/* Pop-out image. Cut-out PNG scaled past its box; drop shadow lifts it. */}
         <div className="relative h-28 w-28 shrink-0 self-stretch sm:h-36 sm:w-36">
           {item.image_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={item.image_url}
               alt={item.name}
-              className="pointer-events-none absolute inset-0 h-full w-full -translate-x-1 -translate-y-2 scale-[1.4] object-contain drop-shadow-pop transition duration-300 group-hover:scale-[1.5] sm:scale-[1.45]"
+              fill
+              sizes="(max-width: 640px) 112px, 144px"
+              className="pointer-events-none -translate-x-1 -translate-y-2 scale-[1.4] object-contain drop-shadow-pop transition duration-300 group-hover:scale-[1.5] sm:scale-[1.45]"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-5xl">

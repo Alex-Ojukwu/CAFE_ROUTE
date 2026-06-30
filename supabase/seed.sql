@@ -1,6 +1,8 @@
 -- ============================================================
 -- CafeRoute · Phase 1 · seed data
--- Run AFTER 0001-0004. Seeds menu items + promotes one owner.
+-- Run AFTER all migrations (needs is_staple from 0010 and the unique
+-- name key from 0013). Seeds menu items + promotes one owner.
+-- Idempotent: upserts on `name`, so re-running never duplicates dishes.
 -- ============================================================
 
 -- ----- Menu items (prices in NGN; images served from /public/foods) -----
@@ -13,7 +15,14 @@ insert into menu_items (name, description, price, category, image_url, is_availa
   ('Grilled Chicken',  'Herb-roasted peppered chicken, two pieces',                 1500, 'Grill', '/foods/chicken-removebg-preview.png',    true, true),
   -- Also on the menu (quieter tier)
   ('Shawarma',         'Beef shawarma wrap loaded with fresh veggies',              2500, 'Wraps', '/foods/sharwama-removebg-preview.png',   true, false),
-  ('Pizza',            'Wood-fired pepperoni pizza',                                5000, 'Extras','/foods/pizza-removebg-preview.png',      true, false);
+  ('Pizza',            'Wood-fired pepperoni pizza',                                5000, 'Extras','/foods/pizza-removebg-preview.png',      true, false)
+on conflict (name) do update set
+  description  = excluded.description,
+  price        = excluded.price,
+  category     = excluded.category,
+  image_url    = excluded.image_url,
+  is_available = excluded.is_available,
+  is_staple    = excluded.is_staple;
 
 -- ----- Owner account -----
 -- The owner role can never be self-assigned at signup (see 0002). Create the

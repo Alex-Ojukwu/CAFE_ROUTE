@@ -26,7 +26,7 @@ export default async function MyOrdersPage() {
       <RealtimeRefresher
         table="orders"
         filter={`customer_id=eq.${user!.id}`}
-        intervalMs={8000}
+        intervalMs={30000}
       />
       <h1 className="font-serif text-2xl font-bold text-ink">My orders</h1>
 

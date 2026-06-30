@@ -46,6 +46,8 @@ const config: Config = {
       fontFamily: {
         serif: ["var(--font-playfair)", "ui-serif", "Georgia", "serif"],
         sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        // Cinematic editorial display (login headline).
+        display: ["var(--font-instrument)", "ui-serif", "Georgia", "serif"],
       },
       boxShadow: {
         glow: "0 0 0 1px rgba(234,106,31,0.25), 0 18px 40px -20px rgba(234,106,31,0.45)",

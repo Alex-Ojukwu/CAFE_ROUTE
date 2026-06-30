@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { formatNaira } from "@/lib/format";
 import { AddToCartButton } from "./add-to-cart-button";
 import type { MenuItem } from "@/lib/types";
@@ -13,14 +14,15 @@ export function MenuItemCard({
   tag?: string;
 }) {
   return (
-    <article className="group relative flex items-center gap-3 overflow-visible rounded-2xl border border-surface-border bg-surface p-3 transition hover:border-primary/40">
+    <article className="liquid-glass group relative flex items-center gap-3 overflow-visible rounded-2xl p-3 transition hover:-translate-y-0.5">
       <div className="relative h-16 w-16 shrink-0">
         {item.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={item.image_url}
             alt={item.name}
-            className="pointer-events-none absolute inset-0 h-full w-full -translate-y-1 scale-[1.2] object-contain drop-shadow-pop-sm transition duration-300 group-hover:scale-[1.3]"
+            fill
+            sizes="64px"
+            className="pointer-events-none -translate-y-1 scale-[1.2] object-contain drop-shadow-pop-sm transition duration-300 group-hover:scale-[1.3]"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-3xl">

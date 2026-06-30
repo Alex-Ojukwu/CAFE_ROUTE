@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Compass, Loader2, Eye, EyeOff } from "lucide-react";
+import { Compass, Loader2, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
@@ -17,7 +17,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 const inputClass =
-  "h-12 w-full rounded-xl border border-primary/60 bg-[#0E0B08] px-4 text-sm text-ink shadow-[0_0_14px_-3px_rgba(234,106,31,0.55)] transition placeholder:text-ink-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50";
+  "h-12 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-white transition placeholder:text-white/35 focus:border-primary/70 focus:bg-white/[0.08] focus:outline-none focus:ring-2 focus:ring-primary/40";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -65,62 +65,80 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative min-h-screen w-full overflow-hidden bg-background">
-      {/* Full-bleed food background */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/food_login_pic.jpg"
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      {/* Mood + contrast gradient: food shows through the middle, dark at the
-          edges for the welcome text and the form. */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/35 to-background/90" />
+    <main className="relative flex min-h-dvh w-full flex-col overflow-hidden bg-black">
+      {/* Full-bleed cinematic food background with a slow Ken Burns drift. */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/food_login_pic.jpg"
+          alt=""
+          aria-hidden="true"
+          className="animate-ken-burns h-full w-full object-cover"
+        />
+      </div>
+      {/* Cinematic scrim: keep the food visible but dark enough for white text
+          and the glass card to read with contrast. */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-r from-black/85 via-black/55 to-black/85" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/70 via-transparent to-black/80" />
+      {/* Top + bottom fades blend the photo into pure black at the edges. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-40 bg-gradient-to-b from-black to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-40 bg-gradient-to-t from-black to-transparent" />
 
       {/* Full-screen loading overlay — stays up from click through the redirect. */}
       {signingIn && (
         <div
           role="status"
           aria-live="polite"
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-background/90 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-black/90 backdrop-blur-md"
         >
           <Loader2 className="h-9 w-9 animate-spin text-primary" aria-hidden="true" />
-          <p className="font-serif text-lg text-ink">Signing you in…</p>
+          <p className="font-display text-2xl italic text-white">
+            Signing you in…
+          </p>
         </div>
       )}
 
-      <div className="relative z-10 flex min-h-screen flex-col md:flex-row">
-        {/* Welcome — desktop only */}
-        <div className="hidden flex-1 flex-col justify-center px-12 lg:px-20 md:flex">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/15 ring-1 ring-primary/40">
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center gap-12 px-6 py-16 lg:flex-row lg:justify-between lg:gap-8 lg:px-10">
+        {/* Welcome — desktop only, editorial italic display headline. */}
+        <div className="hidden max-w-xl flex-col justify-center lg:flex">
+          <span className="liquid-glass inline-flex h-14 w-14 items-center justify-center rounded-full">
             <Compass className="h-7 w-7 text-primary" aria-hidden="true" />
           </span>
-          <h1 className="mt-6 font-serif text-5xl font-bold leading-tight text-ink drop-shadow-lg lg:text-6xl">
-            Welcome to <span className="text-primary">CafeRoute</span>
+          <p className="mt-8 text-xs font-semibold uppercase tracking-[0.28em] text-primary-300">
+            Campus cafeteria, delivered
+          </p>
+          <h1 className="mt-3 font-display text-6xl italic leading-[0.95] tracking-tight text-white drop-shadow-xl lg:text-7xl">
+            Good food,
+            <br />
+            served fast.
           </h1>
-          <p className="mt-4 max-w-md text-base text-ink-muted drop-shadow lg:text-lg">
-            Sign in to access your curated meals, track live orders, and manage
-            your account.
+          <p className="mt-6 max-w-md text-base leading-relaxed text-white/65">
+            Sign in to browse today&apos;s specials, track live orders, and pick
+            up right where you left off.
           </p>
         </div>
 
-        {/* Form — floating dark card, pinned right on desktop */}
-        <div className="flex flex-1 items-center justify-center p-6 md:flex-none md:basis-[460px] lg:basis-[540px]">
-          <div className="w-full max-w-sm rounded-2xl border border-primary/30 bg-surface/95 p-7 shadow-glow backdrop-blur">
-            <h2 className="text-center font-serif text-2xl font-bold text-ink">
-              CafeRoute
-            </h2>
+        {/* Form — floating liquid-glass card. */}
+        <div className="flex w-full max-w-sm items-center justify-center lg:w-auto lg:flex-none">
+          <div className="liquid-glass-strong w-full max-w-sm rounded-[28px] p-8">
+            <div className="text-center">
+              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-primary-300">
+                Welcome back
+              </p>
+              <h2 className="mt-2 font-display text-4xl italic text-white">
+                Sign in
+              </h2>
+            </div>
 
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="mt-7 space-y-5"
+              className="mt-8 space-y-5"
               noValidate
             >
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-xs font-semibold uppercase tracking-wider text-ink-muted"
+                  className="block text-xs font-semibold uppercase tracking-wider text-white/70"
                 >
                   Email address
                 </label>
@@ -142,7 +160,7 @@ export default function LoginPage() {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-xs font-semibold uppercase tracking-wider text-ink-muted"
+                  className="block text-xs font-semibold uppercase tracking-wider text-white/70"
                 >
                   Password
                 </label>
@@ -160,7 +178,7 @@ export default function LoginPage() {
                     onClick={() => setShowPassword((v) => !v)}
                     aria-label={showPassword ? "Hide password" : "Show password"}
                     aria-pressed={showPassword}
-                    className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-ink-muted transition hover:text-primary focus:outline-none focus-visible:text-primary"
+                    className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-white/50 transition hover:text-primary focus:outline-none focus-visible:text-primary"
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5" aria-hidden="true" />
@@ -176,14 +194,10 @@ export default function LoginPage() {
                 )}
               </div>
 
-              <p className="text-sm text-ink-muted">
-                Login with your account to continue.
-              </p>
-
               {serverError && (
                 <p
                   role="alert"
-                  className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300"
+                  className="rounded-lg bg-red-500/15 px-3 py-2 text-sm text-red-200"
                 >
                   {serverError}
                 </p>
@@ -192,7 +206,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={signingIn}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold uppercase tracking-wide text-background transition hover:bg-primary-400 focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-80"
+                className="group flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary text-sm font-semibold uppercase tracking-wide text-background transition hover:bg-primary-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-black disabled:opacity-80"
               >
                 {signingIn ? (
                   <>
@@ -203,7 +217,13 @@ export default function LoginPage() {
                     Signing in…
                   </>
                 ) : (
-                  "Sign in"
+                  <>
+                    Sign in
+                    <ArrowRight
+                      className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                      aria-hidden="true"
+                    />
+                  </>
                 )}
               </button>
             </form>
@@ -211,23 +231,39 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={onForgotPassword}
-              className="mx-auto mt-4 block text-sm font-medium text-primary-300 hover:text-primary"
+              className="mx-auto mt-5 block text-sm font-medium text-white/70 transition hover:text-primary"
             >
-              Forgot Password?
+              Forgot password?
             </button>
 
-            <p className="mt-2 text-center text-sm text-ink-muted">
+            <div className="mt-6 border-t border-white/10 pt-5 text-center text-sm text-white/55">
               Don&apos;t have an account?{" "}
               <Link
                 href="/signup"
-                className="font-medium text-primary-300 hover:text-primary"
+                className="font-medium text-primary-300 transition hover:text-primary"
               >
-                Sign Up
+                Sign up
               </Link>
-            </p>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Minimal footer bar. */}
+      <footer className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-3 px-6 pb-8 text-xs text-white/40 sm:flex-row lg:px-10">
+        <p>&copy; {new Date().getFullYear()} CafeRoute. All rights reserved.</p>
+        <nav className="flex items-center gap-6">
+          {["Help", "Terms", "Privacy"].map((link) => (
+            <Link
+              key={link}
+              href="/"
+              className="transition hover:text-white/70"
+            >
+              {link}
+            </Link>
+          ))}
+        </nav>
+      </footer>
     </main>
   );
 }
