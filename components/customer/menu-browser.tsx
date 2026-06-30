@@ -24,7 +24,7 @@ export function MenuBrowser({ items }: { items: MenuItem[] }) {
   const others = items.filter((i) => !i.is_staple);
 
   return (
-    <div className="relative mx-auto max-w-6xl px-4 py-8">
+    <div className="relative mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-10">
       {/* Warm cinematic glow behind the header for depth. */}
       <div
         aria-hidden="true"
@@ -44,14 +44,14 @@ export function MenuBrowser({ items }: { items: MenuItem[] }) {
         </p>
       </header>
 
-      <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_320px]">
+      <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_340px]">
         {/* Everyday staples — the big cream pop-out heroes. */}
         {staples.length > 0 && (
           <section className="min-w-0">
             <h2 className="mb-5 font-display text-2xl italic text-ink">
               Everyday specials
             </h2>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-8">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-8 xl:grid-cols-3">
               {staples.map((item) => (
                 <StapleCard
                   key={item.id}

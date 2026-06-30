@@ -25,7 +25,7 @@ export function CustomerTopbar() {
   return (
     <>
       <header className="sticky top-0 z-20 border-b border-surface-border bg-background-raised/80 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
+        <div className="mx-auto flex max-w-screen-2xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
           <div className="flex items-center gap-2.5">
             <Wordmark href="/customer" />
             <RolePill label="Customer" />
